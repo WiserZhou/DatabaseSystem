@@ -1,11 +1,4 @@
-import org.example.test3.DatabaseConnection;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+package org.example.test3.utils;
 
 public class TriggerManager {
 //    public static void enableTrigger(String triggerName) throws SQLException {

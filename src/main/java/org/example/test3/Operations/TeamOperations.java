@@ -1,6 +1,8 @@
-package org.example.test3;
+package org.example.test3.Operations;
 
-import java.math.BigDecimal;
+import org.example.test3.utils.DatabaseConnection;
+import org.example.test3.utils.DatabaseTransaction;
+
 import java.sql.*;
 
 public class TeamOperations {
@@ -10,8 +12,11 @@ public class TeamOperations {
         // insertTeam(4, "Liverpool FC", 1892, 4);
 
         // 删除操作示例
-        // deleteTeam(4);
+        //  deleteTeam(1);
 
+        // 合并球队示例：将ID为1的球队合并到ID为2的球队
+         mergeTeams(1, 2);
+        
         // 连接查询操作
         fetchTeamDetails();
 
@@ -21,31 +26,33 @@ public class TeamOperations {
         // 分组查询操作
         groupTeamsByStadiumLocation();
 
-        // 转让球队示例：转让ID为1的球队
-        handleTeamTransfer(
-            1,                          // teamId
-            "New Barcelona FC",         // 新球队名称
-            4,                          // 新球场ID
-            new BigDecimal("500000000") // 转让金额
-        );
     }
 
     // 插入Team记录
     public static void insertTeam(int teamID, String teamName, int foundYear, int homeStadiumID) {
         String sql = "INSERT INTO Team (TeamID, TeamName, FoundYear, HomeStadiumID) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try {
+            // 开始事务
+            DatabaseTransaction.beginTransaction();
 
-            pstmt.setInt(1, teamID);
-            pstmt.setString(2, teamName);
-            pstmt.setInt(3, foundYear);
-            pstmt.setInt(4, homeStadiumID);
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            try {
+                pstmt.setInt(1, teamID);
+                pstmt.setString(2, teamName);
+                pstmt.setInt(3, foundYear);
+                pstmt.setInt(4, homeStadiumID);
+
                 pstmt.executeUpdate();
                 System.out.println("Team inserted successfully.");
+
+                // 提交事务
+                DatabaseTransaction.commitTransaction();
             } catch (SQLException e) {
+                // 回滚事务
+                DatabaseTransaction.rollbackTransaction();
+
                 if (e.getErrorCode() == 1062) {
                     System.out.println("Error: Duplicate TeamID or TeamName.");
                 } else if (e.getErrorCode() == 1452) {
@@ -54,7 +61,6 @@ public class TeamOperations {
                     e.printStackTrace();
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -64,21 +70,32 @@ public class TeamOperations {
     public static void deleteTeam(int teamID) {
         String sql = "DELETE FROM Team WHERE TeamID = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try {
+            // 开始事务
+            DatabaseTransaction.beginTransaction();
 
-            pstmt.setInt(1, teamID);
-            
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows > 0) {
-                System.out.println("Team deleted successfully.");
-            } else {
-                System.out.println("Error: Team with TeamID " + teamID + " not found.");
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setInt(1, teamID);
+
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows > 0) {
+                    System.out.println("Team deleted successfully.");
+                    // 提交事务
+                    DatabaseTransaction.commitTransaction();
+                } else {
+                    System.out.println("Error: Team with TeamID " + teamID + " not found.");
+                    // 回滚事务
+                    DatabaseTransaction.rollbackTransaction();
+                }
             }
-
         } catch (SQLException e) {
-            if (e.getMessage().contains("foreign key constraint")) {
-                System.out.println("Error: Cannot delete team as it has associated players, matches, or contracts.");
+            // 回滚事务
+            DatabaseTransaction.rollbackTransaction();
+
+            if (e.getSQLState().equals("45000")) {
+                System.out.println("Error: " + e.getMessage());
             } else {
                 e.printStackTrace();
             }
@@ -171,100 +188,69 @@ public class TeamOperations {
         }
     }
 
-    /**
-     * 处理球队转让事务，包括：
-     * 1. 更新球队信息
-     * 2. 转移所有球员合同
-     * 3. 更新教练信息
-     * 4. 处理赞助商关系
-     */
-    public static void handleTeamTransfer(int teamId, String newTeamName, int newStadiumId, BigDecimal transferAmount) {
+    // 球队合并操作
+    public static void mergeTeams(int sourceTeamId, int targetTeamId) {
         Connection conn = null;
-        
+
         try {
-            // 1. 开始事务
+            // 开始事务
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
-            
-            // 2. 检查新球场是否存在且未被占用
-            String checkStadiumSql = "SELECT COUNT(*) FROM Team WHERE HomeStadiumID = ? AND TeamID != ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(checkStadiumSql)) {
-                pstmt.setInt(1, newStadiumId);
-                pstmt.setInt(2, teamId);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    throw new SQLException("Stadium is already occupied by another team");
-                }
-            }
-            
-            // 3. 更新球队信息
-            String updateTeamSql = "UPDATE Team SET TeamName = ?, HomeStadiumID = ? WHERE TeamID = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(updateTeamSql)) {
-                pstmt.setString(1, newTeamName);
-                pstmt.setInt(2, newStadiumId);
-                pstmt.setInt(3, teamId);
-                int affected = pstmt.executeUpdate();
-                if (affected == 0) {
-                    throw new SQLException("Team not found");
-                }
-            }
-            
-            // 4. 更新现有合同状态
-            String updateContractsSql = "UPDATE Contract SET Status = 'Transfer Pending' WHERE TeamID = ? AND Status = 'Active'";
-            try (PreparedStatement pstmt = conn.prepareStatement(updateContractsSql)) {
-                pstmt.setInt(1, teamId);
+
+            // 1. 转移球员到目标球队
+            String updatePlayersSql = "UPDATE Player SET TeamID = ? WHERE TeamID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updatePlayersSql)) {
+                pstmt.setInt(1, targetTeamId);
+                pstmt.setInt(2, sourceTeamId);
                 pstmt.executeUpdate();
             }
-            
-            // 5. 处理教练合同
-            String updateCoachSql = "UPDATE Coach SET TeamID = NULL WHERE TeamID = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(updateCoachSql)) {
-                pstmt.setInt(1, teamId);
+
+            // 2. 撤职源球队的教练
+            String removeCoachSql = "UPDATE Coach SET TeamID = NULL WHERE TeamID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(removeCoachSql)) {
+                pstmt.setInt(1, sourceTeamId);
                 pstmt.executeUpdate();
             }
-            
-            // 6. 更新赞助商关系
-            String updateSponsorsSql = "UPDATE TeamSponsor SET EndDate = CURRENT_DATE WHERE TeamID = ? AND EndDate > CURRENT_DATE";
-            try (PreparedStatement pstmt = conn.prepareStatement(updateSponsorsSql)) {
-                pstmt.setInt(1, teamId);
+
+            // 3. 合并赞助商合同
+            String mergeSponsorsSql = "UPDATE TeamSponsor SET TeamID = ? WHERE TeamID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(mergeSponsorsSql)) {
+                pstmt.setInt(1, targetTeamId);
+                pstmt.setInt(2, sourceTeamId);
                 pstmt.executeUpdate();
             }
-            
-            // 7. 记录转让交易
-            String insertTransferSql = "INSERT INTO TeamTransferHistory (TeamID, OldTeamName, NewTeamName, TransferDate, TransferAmount) " +
-                                     "VALUES (?, (SELECT TeamName FROM Team WHERE TeamID = ?), ?, CURRENT_DATE, ?)";
-            try (PreparedStatement pstmt = conn.prepareStatement(insertTransferSql)) {
-                pstmt.setInt(1, teamId);
-                pstmt.setInt(2, teamId);
-                pstmt.setString(3, newTeamName);
-                pstmt.setBigDecimal(4, transferAmount);
+
+            // 4. 删除旧球队
+            String deleteTeamSql = "DELETE FROM Team WHERE TeamID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteTeamSql)) {
+                pstmt.setInt(1, sourceTeamId);
                 pstmt.executeUpdate();
             }
-            
-            // 8. 提交事务
+
+            // 提交事务
             conn.commit();
-            System.out.println("Team transfer completed successfully!");
-            
+            System.out.println("Teams merged successfully!");
+
         } catch (SQLException e) {
-            // 9. 发生错误时回滚事务
-            try {
-                if (conn != null) {
+            // 回滚事务
+            if (conn != null) {
+                try {
                     conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
             }
-            System.out.println("Team transfer failed: " + e.getMessage());
+            System.out.println("Error during team merge: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            // 10. 恢复自动提交并关闭连接
-            try {
-                if (conn != null) {
+            // 恢复自动提交并关闭连接
+            if (conn != null) {
+                try {
                     conn.setAutoCommit(true);
                     conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
         }
     }

@@ -1,4 +1,4 @@
-package org.example.test3;
+package org.example.test3.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

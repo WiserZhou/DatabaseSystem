@@ -1,4 +1,6 @@
-package org.example.test3;
+package org.example.test3.Operations;
+
+import org.example.test3.utils.DatabaseConnection;
 
 import java.sql.*;
 import java.math.BigDecimal;
