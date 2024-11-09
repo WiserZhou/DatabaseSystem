@@ -3,6 +3,7 @@ package org.example.test3;
 import org.example.test3.Operations.*;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.PrintStream;
 import java.sql.Date;
@@ -28,31 +29,41 @@ public class FootballManagementUI {
         frame.setSize(1200, 800);
         frame.setLayout(new BorderLayout());
 
+        // 设置整体背景颜色
+        frame.getContentPane().setBackground(new Color(245, 245, 245));
+
         // 创建选项卡面板
         JTabbedPane tabbedPane = new JTabbedPane();
-        
+        tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 14)); // 设置选项卡字体
+        tabbedPane.setBackground(new Color(230, 230, 250)); // 设置选项卡背景颜色
+
         // 添加输出区域
         outputArea = new JTextArea();
         outputArea.setEditable(false);
-        outputArea.setLineWrap(true);  // 启用自动换行
-        outputArea.setWrapStyleWord(true);  // 按单词换行
-        outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));  // 设置等宽字体
-        
+        outputArea.setLineWrap(true);
+        outputArea.setWrapStyleWord(true);
+        outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        outputArea.setBackground(new Color(245, 245, 245)); // 背景颜色
+        outputArea.setForeground(new Color(50, 50, 50));    // 字体颜色
+
         // 创建滚动面板并设置
         JScrollPane outputScrollPane = new JScrollPane(outputArea);
         outputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         outputScrollPane.setPreferredSize(new Dimension(1200, 300));
-        outputScrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
+        outputScrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(0, 102, 204)), "Output",
+                TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 14), new Color(0, 102, 204)));
 
-        // 添加各个操作面板
-        tabbedPane.addTab("Team", createTeamPanel());
-        tabbedPane.addTab("Player", createPlayerPanel());
-        tabbedPane.addTab("Coach", createCoachPanel());
-        tabbedPane.addTab("Stadium", createStadiumPanel());
-        tabbedPane.addTab("Match", createMatchPanel());
-        tabbedPane.addTab("Sponsor", createSponsorPanel());
-        tabbedPane.addTab("Contract", createContractPanel());
-        tabbedPane.addTab("Team Sponsor", createTeamSponsorPanel());
+        // 为每个选项卡添加不同的面板
+        tabbedPane.addTab("Team", createStyledPanel(createTeamPanel()));
+        tabbedPane.addTab("Player", createStyledPanel(createPlayerPanel()));
+        tabbedPane.addTab("Coach", createStyledPanel(createCoachPanel()));
+        tabbedPane.addTab("Stadium", createStyledPanel(createStadiumPanel()));
+        tabbedPane.addTab("Match", createStyledPanel(createMatchPanel()));
+        tabbedPane.addTab("Sponsor", createStyledPanel(createSponsorPanel()));
+        tabbedPane.addTab("Contract", createStyledPanel(createContractPanel()));
+        tabbedPane.addTab("Team Sponsor", createStyledPanel(createTeamSponsorPanel()));
 
         // 添加组件到框架
         frame.add(tabbedPane, BorderLayout.CENTER);
@@ -61,144 +72,158 @@ public class FootballManagementUI {
         frame.setVisible(true);
     }
 
-    private JPanel createBasePanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    // 创建一个带样式的面板（用于主内容）
+    private JPanel createStyledPanel(JPanel panel) {
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true), // 外层灰色边框，带圆角
+                BorderFactory.createEmptyBorder(15, 15, 15, 15) // 内层空白边距
+        ));
+        panel.setBackground(new Color(245, 245, 250)); // 浅灰蓝色背景
         return panel;
     }
 
+    // 创建基础面板（用于布局整体结构）
+    private JPanel createBasePanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(180, 180, 180), 1, true), // 边框带圆角
+                BorderFactory.createEmptyBorder(15, 15, 15, 15) // 内边距
+        ));
+        panel.setBackground(new Color(250, 250, 255)); // 白色背景带一点淡蓝
+        return panel;
+    }
+
+    // 创建按钮面板
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // 按钮区域增加上下内边距
+        buttonPanel.setBackground(new Color(235, 240, 255)); // 按钮面板浅蓝色背景
         return buttonPanel;
     }
 
+    // 美化按钮的方法
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("SansSerif", Font.BOLD, 13)); // 设置粗体字体
+        button.setForeground(Color.WHITE); // 字体颜色
+        button.setBackground(new Color(60, 130, 200)); // 按钮蓝色背景
+        button.setFocusPainted(false); // 去除聚焦边框
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(50, 120, 190), 1), // 深蓝色边框
+                BorderFactory.createEmptyBorder(8, 15, 8, 15) // 内边距
+        ));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 鼠标悬停手形指针
+        return button;
+    }
+
+
     private JPanel createTeamPanel() {
         JPanel mainPanel = createBasePanel();
-        
+
         // 创建顶部按钮面板
         JPanel buttonPanel = createButtonPanel();
-        
-        // 添加查询按钮和嵌套查询
-        JButton viewButton = new JButton("View All Teams");
+
+        // 添加“View All Teams”按钮
+        JButton viewButton = createStyledButton("View All Teams");
         viewButton.addActionListener(e -> {
             outputArea.append("\n----- View All Teams -----\n");
             PrintStreamRedirector.redirectSystemOut(outputArea, TeamOperations::fetchTeamDetails);
         });
 
-        JButton groupButton = new JButton("Group Teams by Stadium Location");
+        // 添加“Group Teams by Stadium Location”按钮
+        JButton groupButton = createStyledButton("Group Teams by Stadium Location");
         groupButton.addActionListener(e -> {
             outputArea.append("\n----- Group Teams by Stadium Location -----\n");
             PrintStreamRedirector.redirectSystemOut(outputArea, TeamOperations::groupTeamsByStadiumLocation);
         });
-        
-        // 嵌套查询面板使用FlowLayout紧凑布局
+
+        // 嵌套查询面板，使用FlowLayout紧凑布局
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Found Year:"));
         JTextField yearQueryField = new JTextField(6);
-        JButton nestedQueryButton = getjButton(yearQueryField);
+        // 创建“Search”按钮，并添加事件监听器
+        JButton nestedQueryButton = createStyledButton("Search");
+        nestedQueryButton.addActionListener(e -> {
+            String yearText = yearQueryField.getText().trim();
+
+            // 检查年份字段是否为空
+            if (yearText.isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                        "Please enter a year to search",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int year = Integer.parseInt(yearText);
+
+                // 验证年份的合理范围
+                if (year < 1800 || year > 2024) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Please enter a valid year (1800-2024)",
+                            "Input Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // 执行嵌套查询操作，并输出结果到 outputArea
+                outputArea.append("\n----- Searching Teams Founded in " + year + " -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> TeamOperations.fetchTeamsByFoundYear(year));
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid year (numeric value)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
 
         nestedQueryPanel.add(yearQueryField);
         nestedQueryPanel.add(nestedQueryButton);
+        nestedQueryPanel.setBackground(new Color(240, 240, 250));
 
+        // 将按钮添加到按钮面板
         buttonPanel.add(viewButton);
         buttonPanel.add(groupButton);
         buttonPanel.add(nestedQueryPanel);
 
         // 创建中间的操作面板，使用紧凑的网格布局
         JPanel operationsPanel = new JPanel(new GridLayout(1, 2, 20, 0));
-        
+
         // 添加表单面板
         JPanel addPanel = new JPanel(new GridBagLayout());
-        addPanel.setBorder(BorderFactory.createTitledBorder("Add Team"));
+        addPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(100, 149, 237), 1, true),
+                "Add Team", TitledBorder.LEFT, TitledBorder.TOP, new Font("SansSerif", Font.BOLD, 14), new Color(70, 130, 180)));
+        addPanel.setBackground(new Color(245, 245, 255));
+
+        // 表单布局配置
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
-        // 标签列
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.weightx = 0.0;
-        addPanel.add(new JLabel("Team ID:"), gbc);
-        
-        gbc.gridy = 1;
-        addPanel.add(new JLabel("Team Name:"), gbc);
-        
-        gbc.gridy = 2;
-        addPanel.add(new JLabel("Found Year:"), gbc);
-        
-        gbc.gridy = 3;
-        addPanel.add(new JLabel("Stadium ID:"), gbc);
-        
-        // 输入框列
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        JTextField idField = new JTextField(15);
-        addPanel.add(idField, gbc);
-        
-        gbc.gridy = 1;
-        JTextField nameField = new JTextField(15);
-        addPanel.add(nameField, gbc);
-        
-        gbc.gridy = 2;
-        JTextField yearField = new JTextField(15);
-        addPanel.add(yearField, gbc);
-        
-        gbc.gridy = 3;
-        JTextField stadiumField = new JTextField(15);
-        addPanel.add(stadiumField, gbc);
-        
-        // 添加按钮
-        JButton addButton = new JButton("Add Team");
-        addButton.addActionListener(e -> {
-            // 首先验证所有字段是否都已填写
-            if (idField.getText().trim().isEmpty() || 
-                nameField.getText().trim().isEmpty() || 
-                yearField.getText().trim().isEmpty() || 
-                stadiumField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please fill in all fields", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(idField.getText().trim());
-                String name = nameField.getText().trim();
-                int year = Integer.parseInt(yearField.getText().trim());
-                int stadiumId = Integer.parseInt(stadiumField.getText().trim());
-                
-                // 添加基本的数据验证
-                if (year < 1800 || year > 2024) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid year (1800-2024)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                
-                outputArea.append("\n----- Adding New Team -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    TeamOperations.insertTeam(id, name, year, stadiumId);
-                });
-                
-                // 清空输入框
-                idField.setText("");
-                nameField.setText("");
-                yearField.setText("");
-                stadiumField.setText("");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter valid numbers for ID, Year and Stadium ID", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
+        // 添加标签和输入框
+        addFieldToPanel(addPanel, gbc, "Team ID:", 0);
+        JTextField idField = new JTextField(15);
+        addInputField(addPanel, gbc, idField, 0);
+
+        addFieldToPanel(addPanel, gbc, "Team Name:", 1);
+        JTextField nameField = new JTextField(15);
+        addInputField(addPanel, gbc, nameField, 1);
+
+        addFieldToPanel(addPanel, gbc, "Found Year:", 2);
+        JTextField yearField = new JTextField(15);
+        addInputField(addPanel, gbc, yearField, 2);
+
+        addFieldToPanel(addPanel, gbc, "Stadium ID:", 3);
+        JTextField stadiumField = new JTextField(15);
+        addInputField(addPanel, gbc, stadiumField, 3);
+
+        // 添加"Add Team"按钮
+        JButton addButton = createStyledButton("Add Team");
+        addButton.addActionListener(e -> handleAddButton(idField, nameField, yearField, stadiumField));
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
@@ -207,93 +232,142 @@ public class FootballManagementUI {
 
         // 删除面板
         JPanel deletePanel = new JPanel(new GridBagLayout());
-        deletePanel.setBorder(BorderFactory.createTitledBorder("Delete Team"));
-        
+        deletePanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(255, 99, 71), 1, true),
+                "Delete Team", TitledBorder.LEFT, TitledBorder.TOP, new Font("SansSerif", Font.BOLD, 14), new Color(220, 20, 60)));
+        deletePanel.setBackground(new Color(255, 240, 245));
+
+        // 删除字段和按钮
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
         deletePanel.add(new JLabel("Team ID to delete:"), gbc);
-        
+
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Team");
-        deleteButton.addActionListener(e -> {
-            // 验证删除ID是否已填写
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Team ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Team ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete team with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Team -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        TeamOperations.deleteTeam(id);
-                    });
-                    deleteIdField.setText(""); // 清空输入框
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Team ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
+        JButton deleteButton = createStyledButton("Delete Team");
+        deleteButton.addActionListener(e -> handleDeleteButton(deleteIdField));
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         deletePanel.add(deleteButton, gbc);
 
-        // 添加到操作面板
+        // 将表单面板和删除面板添加到操作面板
         operationsPanel.add(addPanel);
         operationsPanel.add(deletePanel);
-        
-        // 添加到主面板
+
+        // 将按钮面板和操作面板添加到主面板
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
     }
 
-    private JButton getjButton(JTextField yearQueryField) {
-        JButton nestedQueryButton = new JButton("Find Teams by Found Year");
-        nestedQueryButton.addActionListener(e -> {
-            try {
-                int year = Integer.parseInt(yearQueryField.getText());
-                outputArea.append("\n----- Teams Founded in " + year + " -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    TeamOperations.fetchTeamsByFoundYear(year);
-                });
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Please enter a valid year");
+    // 添加标签到指定面板
+    private void addFieldToPanel(JPanel panel, GridBagConstraints gbc, String label, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel(label), gbc);
+    }
+
+    // 添加输入框到指定面板
+    private void addInputField(JPanel panel, GridBagConstraints gbc, JTextField field, int row) {
+        gbc.gridx = 1;
+        gbc.gridy = row;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(field, gbc);
+    }
+
+    // 处理添加按钮点击事件
+    private void handleAddButton(JTextField idField, JTextField nameField, JTextField yearField, JTextField stadiumField) {
+        // 首先验证所有字段是否都已填写
+        if (idField.getText().trim().isEmpty() ||
+                nameField.getText().trim().isEmpty() ||
+                yearField.getText().trim().isEmpty() ||
+                stadiumField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please fill in all fields",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idField.getText().trim());
+            String name = nameField.getText().trim();
+            int year = Integer.parseInt(yearField.getText().trim());
+            int stadiumId = Integer.parseInt(stadiumField.getText().trim());
+
+            // 添加基本的数据验证
+            if (year < 1800 || year > 2024) {
+                JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid year (1800-2024)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        });
-        return nestedQueryButton;
+
+            outputArea.append("\n----- Adding New Team -----\n");
+            PrintStreamRedirector.redirectSystemOut(outputArea, () -> TeamOperations.insertTeam(id, name, year, stadiumId));
+
+            // 清空输入框
+            idField.setText("");
+            nameField.setText("");
+            yearField.setText("");
+            stadiumField.setText("");
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please enter valid numbers for ID, Year and Stadium ID",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // 处理删除按钮点击事件
+    private void handleDeleteButton(JTextField deleteIdField) {
+        // 验证删除ID是否已填写
+        if (deleteIdField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please enter a Team ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(deleteIdField.getText().trim());
+            if (id <= 0) {
+                JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Team ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete team with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                outputArea.append("\n----- Deleting Team -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> TeamOperations.deleteTeam(id));
+                deleteIdField.setText(""); // 清空输入框
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Team ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     // 其他面板的创建方法类似，这里只展示部分代码
@@ -320,19 +394,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Position:"));
         JTextField positionQueryField = new JTextField(15);
-        JButton nestedQueryButton = new JButton("Find Players by Position");
-        nestedQueryButton.addActionListener(e -> {
-            String position = positionQueryField.getText().trim();
-            if (!position.isEmpty()) {
-                outputArea.append("\n----- Players in Position: " + position + " -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    PlayerOperations.fetchPlayersByPosition(position);
-                });
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please enter a position");
-            }
-        });
-        
+        JButton nestedQueryButton = getjButton7(positionQueryField);
+
         nestedQueryPanel.add(positionQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -435,9 +498,7 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Player -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    PlayerOperations.insertPlayer(playerId, name, age, position, nationality, teamId);
-                });
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> PlayerOperations.insertPlayer(playerId, name, age, position, nationality, teamId));
                 
                 // 清空输入框
                 idField.setText("");
@@ -474,49 +535,9 @@ public class FootballManagementUI {
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Player");
-        deleteButton.addActionListener(e -> {
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Player ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Player ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getjButton8(deleteIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete player with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Player -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        PlayerOperations.deletePlayer(id);
-                    });
-                    deleteIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Player ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -532,6 +553,63 @@ public class FootballManagementUI {
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JButton getjButton8(JTextField deleteIdField) {
+        JButton deleteButton = new JButton("Delete Player");
+        deleteButton.addActionListener(e -> {
+            if (deleteIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a Player ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(deleteIdField.getText().trim());
+                if (id <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Player ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete player with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Player -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> PlayerOperations.deletePlayer(id));
+                    deleteIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Player ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getjButton7(JTextField positionQueryField) {
+        JButton nestedQueryButton = new JButton("Find Players by Position");
+        nestedQueryButton.addActionListener(e -> {
+            String position = positionQueryField.getText().trim();
+            if (!position.isEmpty()) {
+                outputArea.append("\n----- Players in Position: " + position + " -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> PlayerOperations.fetchPlayersByPosition(position));
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please enter a position");
+            }
+        });
+        return nestedQueryButton;
     }
 
     private JPanel createCoachPanel() {
@@ -557,19 +635,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("License Level:"));
         JTextField licenseQueryField = new JTextField(10);
-        JButton nestedQueryButton = new JButton("Find Coaches by License");
-        nestedQueryButton.addActionListener(e -> {
-            String license = licenseQueryField.getText().trim();
-            if (!license.isEmpty()) {
-                outputArea.append("\n----- Coaches with License: " + license + " -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    CoachOperations.fetchCoachesWithLicense(license);
-                });
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please enter a license level");
-            }
-        });
-        
+        JButton nestedQueryButton = getjButton(licenseQueryField);
+
         nestedQueryPanel.add(licenseQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -670,9 +737,7 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Coach -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    CoachOperations.insertCoach(id, name, age, nationality, licenseLevel, teamId);
-                });
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> CoachOperations.insertCoach(id, name, age, nationality, licenseLevel, teamId));
                 
                 // 清空输入框
                 idField.setText("");
@@ -709,49 +774,9 @@ public class FootballManagementUI {
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Coach");
-        deleteButton.addActionListener(e -> {
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Coach ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Coach ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getjButton6(deleteIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete coach with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Coach -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        CoachOperations.deleteCoach(id);
-                    });
-                    deleteIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Coach ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -767,6 +792,63 @@ public class FootballManagementUI {
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JButton getjButton6(JTextField deleteIdField) {
+        JButton deleteButton = new JButton("Delete Coach");
+        deleteButton.addActionListener(e -> {
+            if (deleteIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a Coach ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(deleteIdField.getText().trim());
+                if (id <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Coach ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete coach with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Coach -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> CoachOperations.deleteCoach(id));
+                    deleteIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Coach ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getjButton(JTextField licenseQueryField) {
+        JButton nestedQueryButton = new JButton("Find Coaches by License");
+        nestedQueryButton.addActionListener(e -> {
+            String license = licenseQueryField.getText().trim();
+            if (!license.isEmpty()) {
+                outputArea.append("\n----- Coaches with License: " + license + " -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> CoachOperations.fetchCoachesWithLicense(license));
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please enter a license level");
+            }
+        });
+        return nestedQueryButton;
     }
 
     private JPanel createStadiumPanel() {
@@ -792,23 +874,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Minimum Capacity:"));
         JTextField capacityQueryField = new JTextField(10);
-        JButton nestedQueryButton = new JButton("Find Stadiums by Capacity");
-        nestedQueryButton.addActionListener(e -> {
-            try {
-                int minCapacity = Integer.parseInt(capacityQueryField.getText().trim());
-                if (minCapacity > 0) {
-                    outputArea.append("\n----- Stadiums with Capacity >= " + minCapacity + " -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        StadiumOperations.fetchStadiumsByCapacity(minCapacity);
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Please enter a positive capacity");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Please enter a valid number");
-            }
-        });
-        
+        JButton nestedQueryButton = getNestedQueryButton(capacityQueryField);
+
         nestedQueryPanel.add(capacityQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -912,9 +979,7 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Stadium -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    StadiumOperations.insertStadium(stadiumId, name, capacity, location, buildYear);
-                });
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> StadiumOperations.insertStadium(stadiumId, name, capacity, location, buildYear));
                 
                 // 清空输入框
                 idField.setText("");
@@ -950,49 +1015,9 @@ public class FootballManagementUI {
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Stadium");
-        deleteButton.addActionListener(e -> {
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Stadium ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Stadium ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getDeleteButton(deleteIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete stadium with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Stadium -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        StadiumOperations.deleteStadium(id);
-                    });
-                    deleteIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Stadium ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -1008,6 +1033,67 @@ public class FootballManagementUI {
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JButton getDeleteButton(JTextField deleteIdField) {
+        JButton deleteButton = new JButton("Delete Stadium");
+        deleteButton.addActionListener(e -> {
+            if (deleteIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a Stadium ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(deleteIdField.getText().trim());
+                if (id <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Stadium ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete stadium with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Stadium -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> StadiumOperations.deleteStadium(id));
+                    deleteIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Stadium ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getNestedQueryButton(JTextField capacityQueryField) {
+        JButton nestedQueryButton = new JButton("Find Stadiums by Capacity");
+        nestedQueryButton.addActionListener(e -> {
+            try {
+                int minCapacity = Integer.parseInt(capacityQueryField.getText().trim());
+                if (minCapacity > 0) {
+                    outputArea.append("\n----- Stadiums with Capacity >= " + minCapacity + " -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> StadiumOperations.fetchStadiumsByCapacity(minCapacity));
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please enter a positive capacity");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid number");
+            }
+        });
+        return nestedQueryButton;
     }
 
     private JPanel createMatchPanel() {
@@ -1033,19 +1119,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Stadium Name:"));
         JTextField stadiumQueryField = new JTextField(15);
-        JButton nestedQueryButton = new JButton("Find Matches by Stadium");
-        nestedQueryButton.addActionListener(e -> {
-            String stadiumName = stadiumQueryField.getText().trim();
-            if (!stadiumName.isEmpty()) {
-                outputArea.append("\n----- Matches at Stadium: " + stadiumName + " -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    FootballMatchOperations.fetchMatchesByStadium(stadiumName);
-                });
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please enter a stadium name");
-            }
-        });
-        
+        JButton nestedQueryButton = getButton(stadiumQueryField);
+
         nestedQueryPanel.add(stadiumQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -1166,10 +1241,8 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Match -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    FootballMatchOperations.insertMatch(matchId, homeTeamId, awayTeamId, 
-                        date, time, stadiumId, status);
-                });
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> FootballMatchOperations.insertMatch(matchId, homeTeamId, awayTeamId,
+                    date, time, stadiumId, status));
                 
                 // 清空输入框
                 idField.setText("");
@@ -1212,49 +1285,9 @@ public class FootballManagementUI {
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Match");
-        deleteButton.addActionListener(e -> {
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Match ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Match ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getjButton1(deleteIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete match with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Match -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        FootballMatchOperations.deleteMatch(id);
-                    });
-                    deleteIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Match ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -1270,6 +1303,63 @@ public class FootballManagementUI {
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JButton getjButton1(JTextField deleteIdField) {
+        JButton deleteButton = new JButton("Delete Match");
+        deleteButton.addActionListener(e -> {
+            if (deleteIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a Match ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(deleteIdField.getText().trim());
+                if (id <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Match ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete match with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Match -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> FootballMatchOperations.deleteMatch(id));
+                    deleteIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Match ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getButton(JTextField stadiumQueryField) {
+        JButton nestedQueryButton = new JButton("Find Matches by Stadium");
+        nestedQueryButton.addActionListener(e -> {
+            String stadiumName = stadiumQueryField.getText().trim();
+            if (!stadiumName.isEmpty()) {
+                outputArea.append("\n----- Matches at Stadium: " + stadiumName + " -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> FootballMatchOperations.fetchMatchesByStadium(stadiumName));
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please enter a stadium name");
+            }
+        });
+        return nestedQueryButton;
     }
 
     private JPanel createSponsorPanel() {
@@ -1295,19 +1385,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Industry:"));
         JTextField industryQueryField = new JTextField(15);
-        JButton nestedQueryButton = new JButton("Find Sponsors by Industry");
-        nestedQueryButton.addActionListener(e -> {
-            String industry = industryQueryField.getText().trim();
-            if (!industry.isEmpty()) {
-                outputArea.append("\n----- Sponsors in Industry: " + industry + " -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    SponsorOperations.fetchSponsorsByIndustry(industry);
-                });
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please enter an industry");
-            }
-        });
-        
+        JButton nestedQueryButton = getQueryButton(industryQueryField);
+
         nestedQueryPanel.add(industryQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -1392,10 +1471,8 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Sponsor -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    SponsorOperations.insertSponsor(sponsorId, name, industry, contactPerson);
-                });
-                
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> SponsorOperations.insertSponsor(sponsorId, name, industry, contactPerson));
+
                 // 清空输入框
                 idField.setText("");
                 nameField.setText("");
@@ -1429,49 +1506,9 @@ public class FootballManagementUI {
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Sponsor");
-        deleteButton.addActionListener(e -> {
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Sponsor ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Sponsor ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getjButton2(deleteIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete sponsor with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Sponsor -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        SponsorOperations.deleteSponsor(id);
-                    });
-                    deleteIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Sponsor ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -1487,6 +1524,63 @@ public class FootballManagementUI {
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JButton getjButton2(JTextField deleteIdField) {
+        JButton deleteButton = new JButton("Delete Sponsor");
+        deleteButton.addActionListener(e -> {
+            if (deleteIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a Sponsor ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(deleteIdField.getText().trim());
+                if (id <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Sponsor ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete sponsor with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Sponsor -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> SponsorOperations.deleteSponsor(id));
+                    deleteIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Sponsor ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getQueryButton(JTextField industryQueryField) {
+        JButton nestedQueryButton = new JButton("Find Sponsors by Industry");
+        nestedQueryButton.addActionListener(e -> {
+            String industry = industryQueryField.getText().trim();
+            if (!industry.isEmpty()) {
+                outputArea.append("\n----- Sponsors in Industry: " + industry + " -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> SponsorOperations.fetchSponsorsByIndustry(industry));
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please enter an industry");
+            }
+        });
+        return nestedQueryButton;
     }
 
     private JPanel createContractPanel() {
@@ -1512,19 +1606,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Team Name:"));
         JTextField teamQueryField = new JTextField(15);
-        JButton nestedQueryButton = new JButton("Find Contracts by Team");
-        nestedQueryButton.addActionListener(e -> {
-            String teamName = teamQueryField.getText().trim();
-            if (!teamName.isEmpty()) {
-                outputArea.append("\n----- Contracts for Team: " + teamName + " -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    ContractOperations.fetchContractsByTeam(teamName);
-                });
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please enter a team name");
-            }
-        });
-        
+        JButton nestedQueryButton = getjButton3(teamQueryField);
+
         nestedQueryPanel.add(teamQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -1645,10 +1728,8 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Contract -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    ContractOperations.insertContract(contractId, playerId, teamId, 
-                        startDate, endDate, value, status);
-                });
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> ContractOperations.insertContract(contractId, playerId, teamId,
+                    startDate, endDate, value, status));
                 
                 // 清空输入框
                 idField.setText("");
@@ -1691,49 +1772,9 @@ public class FootballManagementUI {
         gbc.anchor = GridBagConstraints.WEST;
         JTextField deleteIdField = new JTextField(15);
         deletePanel.add(deleteIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Contract");
-        deleteButton.addActionListener(e -> {
-            if (deleteIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a Contract ID to delete", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int id = Integer.parseInt(deleteIdField.getText().trim());
-                if (id <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter a valid Contract ID (positive number)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getjButton4(deleteIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete contract with ID " + id + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Contract -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        ContractOperations.deleteContract(id);
-                    });
-                    deleteIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter a valid Contract ID (number only)", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -1749,6 +1790,63 @@ public class FootballManagementUI {
         mainPanel.add(operationsPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JButton getjButton4(JTextField deleteIdField) {
+        JButton deleteButton = new JButton("Delete Contract");
+        deleteButton.addActionListener(e -> {
+            if (deleteIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a Contract ID to delete",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(deleteIdField.getText().trim());
+                if (id <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter a valid Contract ID (positive number)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete contract with ID " + id + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Contract -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> ContractOperations.deleteContract(id));
+                    deleteIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter a valid Contract ID (number only)",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getjButton3(JTextField teamQueryField) {
+        JButton nestedQueryButton = new JButton("Find Contracts by Team");
+        nestedQueryButton.addActionListener(e -> {
+            String teamName = teamQueryField.getText().trim();
+            if (!teamName.isEmpty()) {
+                outputArea.append("\n----- Contracts for Team: " + teamName + " -----\n");
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> ContractOperations.fetchContractsByTeam(teamName));
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please enter a team name");
+            }
+        });
+        return nestedQueryButton;
     }
 
     private JPanel createTeamSponsorPanel() {
@@ -1774,23 +1872,8 @@ public class FootballManagementUI {
         JPanel nestedQueryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         nestedQueryPanel.add(new JLabel("Minimum Amount:"));
         JTextField amountQueryField = new JTextField(10);
-        JButton nestedQueryButton = new JButton("Find Sponsorships by Amount");
-        nestedQueryButton.addActionListener(e -> {
-            try {
-                BigDecimal minAmount = new BigDecimal(amountQueryField.getText().trim());
-                if (minAmount.compareTo(BigDecimal.ZERO) > 0) {
-                    outputArea.append("\n----- Sponsorships Above " + minAmount + " -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        TeamSponsorOperations.fetchSponsorsByAmount(minAmount);
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Please enter a positive amount");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Please enter a valid number");
-            }
-        });
-        
+        JButton nestedQueryButton = getjButton5(amountQueryField);
+
         nestedQueryPanel.add(amountQueryField);
         nestedQueryPanel.add(nestedQueryButton);
 
@@ -1911,9 +1994,7 @@ public class FootballManagementUI {
                 }
                 
                 outputArea.append("\n----- Adding New Team Sponsorship -----\n");
-                PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                    TeamSponsorOperations.insertTeamSponsor(teamId, sponsorId, startDate, endDate, amount);
-                });
+                PrintStreamRedirector.redirectSystemOut(outputArea, () -> TeamSponsorOperations.insertTeamSponsor(teamId, sponsorId, startDate, endDate, amount));
                 
                 // 清空输入框
                 teamIdField.setText("");
@@ -1957,53 +2038,9 @@ public class FootballManagementUI {
         gbc.gridy = 1;
         JTextField deleteSponsorIdField = new JTextField(15);
         deletePanel.add(deleteSponsorIdField, gbc);
-        
-        JButton deleteButton = new JButton("Delete Sponsorship");
-        deleteButton.addActionListener(e -> {
-            if (deleteTeamIdField.getText().trim().isEmpty() || 
-                deleteSponsorIdField.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter both Team ID and Sponsor ID", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
-            try {
-                int teamId = Integer.parseInt(deleteTeamIdField.getText().trim());
-                int sponsorId = Integer.parseInt(deleteSponsorIdField.getText().trim());
-                
-                if (teamId <= 0 || sponsorId <= 0) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Please enter valid IDs (positive numbers)", 
-                        "Input Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+        JButton deleteButton = getjButton(deleteTeamIdField, deleteSponsorIdField);
 
-                int confirm = JOptionPane.showConfirmDialog(
-                    frame,
-                    "Are you sure you want to delete this sponsorship?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-                );
-                
-                if (confirm == JOptionPane.YES_OPTION) {
-                    outputArea.append("\n----- Deleting Team Sponsorship -----\n");
-                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> {
-                        TeamSponsorOperations.deleteTeamSponsor(teamId, sponsorId);
-                    });
-                    deleteTeamIdField.setText("");
-                    deleteSponsorIdField.setText("");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, 
-                    "Please enter valid numbers for IDs", 
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -2021,10 +2058,69 @@ public class FootballManagementUI {
         return mainPanel;
     }
 
-    // 添加一个辅助方法来追加文本
-    private void appendToOutput(String text) {
-        outputArea.append(text);
-        outputArea.setCaretPosition(outputArea.getDocument().getLength());  // 自动滚动到底部
+    private JButton getjButton(JTextField deleteTeamIdField, JTextField deleteSponsorIdField) {
+        JButton deleteButton = new JButton("Delete Sponsorship");
+        deleteButton.addActionListener(e -> {
+            if (deleteTeamIdField.getText().trim().isEmpty() ||
+                deleteSponsorIdField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter both Team ID and Sponsor ID",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int teamId = Integer.parseInt(deleteTeamIdField.getText().trim());
+                int sponsorId = Integer.parseInt(deleteSponsorIdField.getText().trim());
+
+                if (teamId <= 0 || sponsorId <= 0) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Please enter valid IDs (positive numbers)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete this sponsorship?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    outputArea.append("\n----- Deleting Team Sponsorship -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> TeamSponsorOperations.deleteTeamSponsor(teamId, sponsorId));
+                    deleteTeamIdField.setText("");
+                    deleteSponsorIdField.setText("");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame,
+                    "Please enter valid numbers for IDs",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return deleteButton;
+    }
+
+    private JButton getjButton5(JTextField amountQueryField) {
+        JButton nestedQueryButton = new JButton("Find Sponsorships by Amount");
+        nestedQueryButton.addActionListener(e -> {
+            try {
+                BigDecimal minAmount = new BigDecimal(amountQueryField.getText().trim());
+                if (minAmount.compareTo(BigDecimal.ZERO) > 0) {
+                    outputArea.append("\n----- Sponsorships Above " + minAmount + " -----\n");
+                    PrintStreamRedirector.redirectSystemOut(outputArea, () -> TeamSponsorOperations.fetchSponsorsByAmount(minAmount));
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please enter a positive amount");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid number");
+            }
+        });
+        return nestedQueryButton;
     }
 
 }
