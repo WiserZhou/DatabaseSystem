@@ -54,7 +54,7 @@ public class TeamOperations {
                 DatabaseTransaction.rollbackTransaction();
 
                 if (e.getErrorCode() == 1062) {
-                    System.out.println("Error: Duplicate TeamID or TeamName.");
+                    System.out.println("Error: Duplicate TeamID or TeamName Or  HomeStadiumID");
                 } else if (e.getErrorCode() == 1452) {
                     System.out.println("Error: Invalid HomeStadiumID. Stadium does not exist.");
                 } else {
