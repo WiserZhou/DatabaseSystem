@@ -1,3 +1,4 @@
+# 对常用查询建立视图
 CREATE VIEW TeamStadiumInfo AS
 SELECT
     Team.TeamName,
@@ -54,6 +55,7 @@ FROM
         JOIN
     Sponsor ON TeamSponsor.SponsorID = Sponsor.SponsorID;
 
+# 对常用属性建立索引
 CREATE INDEX idx_player_name ON Player(Name);
 
 CREATE INDEX idx_team_name ON Team(TeamName);
